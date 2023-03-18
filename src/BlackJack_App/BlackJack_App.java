@@ -19,10 +19,11 @@ import java.awt.Image;
 
 import javax.swing.JTextField;
 import javax.imageio.ImageIO;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -34,12 +35,18 @@ public class BlackJack_App extends JFrame {
 	private JPanel contentPane;
 	private JTextField textField_name;
 	Methods methods = new Methods();
-	Player player = new Player();
-	Dealer dealer = new Dealer();
+	Player player = new Player(0,0,new String[0], false, false,"",1000);
+	Dealer dealer = new Dealer(0,0,new String[0], false, false);
 	private JTextField textField_bet;
 	int bet=0;
 	String card = "";
 	String[][] deck = new String[0][0];
+	String[] cardsPlayer_array = new String[0];
+	String[] cardsDealer_array = new String[0];
+	String cardsPlayer = "Cards: ";
+	String valuePlayer = "Value: ";
+	String cardsDealer = "Cards: ";
+	String valueDealer = "Value: ";
 
 	/**
 	 * Launch the application.
@@ -97,7 +104,33 @@ public class BlackJack_App extends JFrame {
 		lbl_bet_game.setFont(new Font("Tahoma", Font.BOLD, 20));
 		lbl_bet_game.setBounds(10, 54, 156, 26);
 		inicio.add(lbl_bet_game);
+				
+		JLabel CardsPlayer = new JLabel("");
+		CardsPlayer.setForeground(Color.WHITE);
+		CardsPlayer.setFont(new Font("Tahoma", Font.BOLD, 20));
+		CardsPlayer.setBounds(258, 327, 287, 26);
+		inicio.add(CardsPlayer);
+		CardsPlayer.setVisible(false);
+
+		JLabel ValuePlayer = new JLabel("");
+		ValuePlayer.setForeground(Color.WHITE);
+		ValuePlayer.setFont(new Font("Tahoma", Font.BOLD, 20));
+		ValuePlayer.setBounds(296, 290, 107, 26);
+		inicio.add(ValuePlayer);
+		ValuePlayer.setVisible(false);
+
+		JLabel CardsDealer = new JLabel("");
+		CardsDealer.setForeground(Color.WHITE);
+		CardsDealer.setFont(new Font("Tahoma", Font.BOLD, 20));
+		CardsDealer.setBounds(263, 27, 287, 26);
+		inicio.add(CardsDealer);
 		
+		JLabel ValueDealer = new JLabel("");
+		ValueDealer.setForeground(Color.WHITE);
+		ValueDealer.setFont(new Font("Tahoma", Font.BOLD, 20));
+		ValueDealer.setBounds(258, 65, 107, 26);
+		inicio.add(ValueDealer);
+							
 		textField_name = new JTextField();
 		textField_name.setBounds(271, 351, 138, 26);
 		inicio.add(textField_name);
@@ -105,12 +138,72 @@ public class BlackJack_App extends JFrame {
 		
 
 		textField_bet = new JTextField();
+		textField_bet.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				char c = e.getKeyChar();
+				if(!Character.isDigit(c)){
+					e.consume();
+				}
+			}
+		});
 		textField_bet.setColumns(10);
 		textField_bet.setBounds(271, 262, 138, 26);
 		inicio.add(textField_bet);
 		textField_bet.setVisible(false);
 		
+
 		JButton btn_bet = new JButton("BET");
+
+		JButton btn_play = new JButton("PLAY");
+		btn_play.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(textField_name.getText()!=null && !textField_name.getText().equals("")) {
+					player.setName(textField_name.getText());
+					btn_play.setVisible(false);
+					textField_name.setVisible(false);
+					lbl_name.setVisible(false);
+					lbl_name_game.setText(textField_name.getText());
+					textField_bet.setVisible(true);
+					lbl_money.setText("Money: "+player.getMoney()+"$");
+					btn_bet.setVisible(true);
+					
+				}else {
+					JOptionPane.showMessageDialog(null,"Invalid Name!","Alerta", JOptionPane.INFORMATION_MESSAGE);					
+				}
+			}
+		});
+		btn_play.setBounds(296, 200, 89, 23);
+		inicio.add(btn_play);
+
+		JButton btn_ask = new JButton("ASK");
+		btn_ask.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+				player.setCards(methods.DealCard(deck));
+				System.out.println(player);
+				System.out.println(dealer);
+				CardsPlayer.setVisible(true);
+				cardsPlayer_array = player.getCards(); 
+				cardsPlayer = "Cards: ";
+				for(int i =0;i<cardsPlayer_array.length;i++) {
+					cardsPlayer += cardsPlayer_array[i]+" ,";
+				}
+				CardsPlayer.setText(String.valueOf(cardsPlayer));
+				ValuePlayer.setText(valuePlayer +player.getCardsValue());
+				if(player.getCardsValue()>=21) {
+					btn_ask.setVisible(false);
+				}
+			}
+		});
+		btn_ask.setBounds(477, 293, 89, 23);
+		inicio.add(btn_ask);
+		btn_ask.setVisible(false);		
+
+		JButton btn_stay = new JButton("STAY");
+		btn_stay.setBounds(124, 293, 89, 23);
+		inicio.add(btn_stay);
+		btn_stay.setVisible(false);
+		
 		btn_bet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(methods.CheckBet(player, textField_bet.getText())) {
@@ -140,8 +233,31 @@ public class BlackJack_App extends JFrame {
 					dealer.setCardscount(dealer.getCardscount()+1);
 					deck = methods.RestCard(deck, card);
 					
+					player.setBlackJack(methods.CheckBlackJack(player));
+					
 					System.out.println(player);
 					System.out.println(dealer);
+					CardsPlayer.setVisible(true);
+					cardsPlayer_array = player.getCards(); 
+					for(int i =0;i<cardsPlayer_array.length;i++) {
+						cardsPlayer += cardsPlayer_array[i]+" ,";
+					}
+					CardsPlayer.setText(String.valueOf(cardsPlayer));
+					ValuePlayer.setVisible(true);
+					ValuePlayer.setText(valuePlayer +player.getCardsValue());
+					
+					//Dealer data
+					CardsDealer.setVisible(true);
+					cardsDealer_array = dealer.getCards(); 
+					for(int i =0;i<cardsDealer_array.length;i++) {
+						cardsDealer += cardsDealer_array[i]+", ";
+					}
+					CardsDealer.setText(String.valueOf(cardsDealer));
+					ValueDealer.setVisible(true);
+					ValueDealer.setText(valueDealer +dealer.getCardsValue());
+					
+					btn_ask.setVisible(true);
+					btn_stay.setVisible(true);
 				}else {
 					JOptionPane.showMessageDialog(null,"Invalid Bet!","Alerta", JOptionPane.INFORMATION_MESSAGE);						
 				}
@@ -151,25 +267,6 @@ public class BlackJack_App extends JFrame {
 		inicio.add(btn_bet);
 		btn_bet.setVisible(false);
 		
-		JButton btn_play = new JButton("PLAY");
-		btn_play.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(textField_name.getText()!=null && !textField_name.getText().equals("")) {
-					player.setName(textField_name.getText());
-					btn_play.setVisible(false);
-					textField_name.setVisible(false);
-					lbl_name.setVisible(false);
-					lbl_name_game.setText(textField_name.getText());
-					textField_bet.setVisible(true);
-					btn_bet.setVisible(true);
-					lbl_money.setText("Money: "+player.getMoney()+"$");
-				}else {
-					JOptionPane.showMessageDialog(null,"Invalid Name!","Alerta", JOptionPane.INFORMATION_MESSAGE);					
-				}
-			}
-		});
-		btn_play.setBounds(296, 200, 89, 23);
-		inicio.add(btn_play);
 		
 		JLabel lbl_fondo = new JLabel("");
 		lbl_fondo.setIcon(new ImageIcon("src\\resources\\crupier.jpg"));
@@ -186,8 +283,7 @@ public class BlackJack_App extends JFrame {
 		Image img_fondo = img.getScaledInstance(lbl_fondo.getWidth(), lbl_fondo.getHeight(), Image.SCALE_SMOOTH);
 		ImageIcon imageIcon = new ImageIcon(img_fondo);
 		lbl_fondo.setIcon(imageIcon);
-			
-		
+						
 		JPanel fin = new JPanel();
 		fin.setLayout(null);
 		contentPane.add(fin, "name_176721581162400");

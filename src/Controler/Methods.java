@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
+import Model.Dealer;
 import Model.Player;
 
 public class Methods {
@@ -58,5 +59,21 @@ public class Methods {
 			blackjack = true;
 		}
 		return blackjack;
+	}
+	
+	public int VerifyWin(Player player, Dealer dealer){
+		int win = 0;
+		
+		if(player.getBlackJack()) {
+			win=1;
+		}else if((player.getCardsValue()<=21 && player.getCardsValue()>dealer.getCardsValue()) || (player.getCardsValue()<=21 && dealer.getCardsValue()>21)) {
+			win = 1;
+		}else if((player.getCardsValue()==dealer.getCardsValue()) && (player.getCardsValue()<=21 && dealer.getCardsValue()<=21)) {
+			win = 0;
+		}else if((player.getCardsValue()>21 && dealer.getCardsValue()<=21) || (player.getCardsValue()<=21 && dealer.getCardsValue()>player.getCardsValue())) {
+			win = -1;
+		}
+		
+		return win;
 	}
 }
