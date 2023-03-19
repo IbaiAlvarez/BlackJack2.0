@@ -31,6 +31,19 @@ public class Methods {
 		return deck;
 	}
 	
+	public static String GetCardValue(String card) {
+		String value= "";
+		
+		if(card.equals("K") || card.equals("Q") || card.equals("J")) {
+			value="10";
+		}else if(card.equals("A")) {
+			value="11";
+		}else {
+			value=card;
+		}		
+		return value;
+	}
+	
 	public String DealCard(String[][] deck) {
 		int random = 0;
 		

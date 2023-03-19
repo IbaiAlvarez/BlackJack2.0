@@ -81,6 +81,9 @@ public abstract class Person {
 		return this.blackjack;
 	}
 
+	public void ResetCardsValue() {
+		this.cardsvalue=0;
+	}
 
 	@Override
 	public String toString() {

@@ -39,6 +39,7 @@ public class BlackJack_App extends JFrame {
 	Dealer dealer = new Dealer(0,0,new String[0], false, false);
 	private JTextField textField_bet;
 	int bet=0;
+	int total_money = 0;
 	String card = "";
 	String[][] deck = new String[0][0];
 	String[] cardsPlayer_array = new String[0];
@@ -180,8 +181,6 @@ public class BlackJack_App extends JFrame {
 		btn_ask.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
 				player.setCards(methods.DealCard(deck));
-				System.out.println(player);
-				System.out.println(dealer);
 				CardsPlayer.setVisible(true);
 				cardsPlayer_array = player.getCards(); 
 				cardsPlayer = "Cards: ";
@@ -200,6 +199,51 @@ public class BlackJack_App extends JFrame {
 		btn_ask.setVisible(false);		
 
 		JButton btn_stay = new JButton("STAY");
+		btn_stay.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				while(dealer.getCardsValue()<17) {
+					dealer.setCards(methods.DealCard(deck));			
+				}
+				//Dealer data
+				cardsDealer_array = dealer.getCards(); 
+				cardsDealer = "Cards: ";
+				for(int i =0;i<cardsDealer_array.length;i++) {
+					cardsDealer += cardsDealer_array[i]+", ";
+				}
+				CardsDealer.setText(String.valueOf(cardsDealer));
+				ValueDealer.setVisible(true);
+				ValueDealer.setText(valueDealer +dealer.getCardsValue());	
+				
+				if(methods.VerifyWin(player, dealer)==1 && player.getBlackJack()) {
+					total_money = (int) (player.getMoney() + Math.round(bet*1.5));
+					player.setMoney(total_money);
+					JOptionPane.showMessageDialog(null,"You won "+Math.round(bet*1.5)+"$","Alerta", JOptionPane.INFORMATION_MESSAGE);
+				}else if(methods.VerifyWin(player, dealer)==1) {
+					player.setMoney(player.getMoney()+bet);
+					JOptionPane.showMessageDialog(null,"You won "+bet+"$","Alerta", JOptionPane.INFORMATION_MESSAGE);
+				}else if(methods.VerifyWin(player, dealer)==-1) {
+					player.setMoney(player.getMoney()-bet);
+					JOptionPane.showMessageDialog(null,"You lost "+bet+"$","Alerta", JOptionPane.INFORMATION_MESSAGE);
+				}else if(methods.VerifyWin(player, dealer)==0) {
+					JOptionPane.showMessageDialog(null,"Draw!","Alerta", JOptionPane.INFORMATION_MESSAGE);
+				}
+				lbl_money.setText("Money: "+player.getMoney()+"$");
+				btn_stay.setVisible(false);
+				btn_ask.setVisible(false);
+				ValuePlayer.setVisible(false);
+				CardsPlayer.setVisible(false);
+				ValueDealer.setVisible(false);
+				CardsDealer.setVisible(false);
+				btn_bet.setVisible(true);
+				textField_bet.setVisible(true);
+				lbl_bet_game.setText("Bet: 0$");
+				player.setCards(new String[0]);
+				player.ResetCardsValue();
+				dealer.setCards(new String[0]);
+				dealer.ResetCardsValue();	
+			}
+		});
 		btn_stay.setBounds(124, 293, 89, 23);
 		inicio.add(btn_stay);
 		btn_stay.setVisible(false);
@@ -217,12 +261,12 @@ public class BlackJack_App extends JFrame {
 					player.setCards(card);
 					player.setCardscount(player.getCardscount()+1);
 					deck = methods.RestCard(deck, card);
-
+					
 					card =methods.DealCard(deck);
 					dealer.setCards(card);
 					dealer.setCardscount(dealer.getCardscount()+1);
 					deck = methods.RestCard(deck, card);
-
+					
 					card =methods.DealCard(deck);
 					player.setCards(card);
 					player.setCardscount(player.getCardscount()+1);
@@ -235,10 +279,9 @@ public class BlackJack_App extends JFrame {
 					
 					player.setBlackJack(methods.CheckBlackJack(player));
 					
-					System.out.println(player);
-					System.out.println(dealer);
 					CardsPlayer.setVisible(true);
 					cardsPlayer_array = player.getCards(); 
+					cardsPlayer="Cards: ";
 					for(int i =0;i<cardsPlayer_array.length;i++) {
 						cardsPlayer += cardsPlayer_array[i]+" ,";
 					}
@@ -249,12 +292,10 @@ public class BlackJack_App extends JFrame {
 					//Dealer data
 					CardsDealer.setVisible(true);
 					cardsDealer_array = dealer.getCards(); 
-					for(int i =0;i<cardsDealer_array.length;i++) {
-						cardsDealer += cardsDealer_array[i]+", ";
-					}
-					CardsDealer.setText(String.valueOf(cardsDealer));
+					cardsDealer="Cards: ";
+					CardsDealer.setText(cardsDealer+cardsDealer_array[0]);
 					ValueDealer.setVisible(true);
-					ValueDealer.setText(valueDealer +dealer.getCardsValue());
+					ValueDealer.setText(valueDealer +Methods.GetCardValue(cardsDealer_array[0]));
 					
 					btn_ask.setVisible(true);
 					btn_stay.setVisible(true);
