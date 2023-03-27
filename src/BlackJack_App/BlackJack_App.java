@@ -48,6 +48,7 @@ public class BlackJack_App extends JFrame {
 	String valuePlayer = "Value: ";
 	String cardsDealer = "Cards: ";
 	String valueDealer = "Value: ";
+	String player_name="";
 
 	/**
 	 * Launch the application.
@@ -80,7 +81,7 @@ public class BlackJack_App extends JFrame {
 		JPanel inicio = new JPanel();
 		contentPane.add(inicio, "name_176543992180000");
 		inicio.setLayout(null);
-		
+				
 		JLabel lbl_name = new JLabel("Name:");
 		lbl_name.setForeground(new Color(255, 255, 255));
 		lbl_name.setFont(new Font("Tahoma", Font.BOLD, 20));
@@ -130,7 +131,14 @@ public class BlackJack_App extends JFrame {
 		ValueDealer.setForeground(Color.WHITE);
 		ValueDealer.setFont(new Font("Tahoma", Font.BOLD, 20));
 		ValueDealer.setBounds(258, 65, 107, 26);
-		inicio.add(ValueDealer);
+		inicio.add(ValueDealer);		
+
+		JLabel lbl_end = new JLabel("");
+		lbl_end.setForeground(Color.WHITE);
+		lbl_end.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lbl_end.setBounds(234, 184, 300, 50);
+		inicio.add(lbl_end);
+		lbl_end.setVisible(false);
 							
 		textField_name = new JTextField();
 		textField_name.setBounds(271, 351, 138, 26);
@@ -155,20 +163,22 @@ public class BlackJack_App extends JFrame {
 		
 
 		JButton btn_bet = new JButton("BET");
+		JButton btn_leave = new JButton("LEAVE TABLE");
 
 		JButton btn_play = new JButton("PLAY");
 		btn_play.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(textField_name.getText()!=null && !textField_name.getText().equals("")) {
 					player.setName(textField_name.getText());
+					player_name= player.getName().substring(0,1).toUpperCase()+player.getName().substring(1);
 					btn_play.setVisible(false);
 					textField_name.setVisible(false);
 					lbl_name.setVisible(false);
-					lbl_name_game.setText(textField_name.getText());
+					lbl_name_game.setText(player_name);
 					textField_bet.setVisible(true);
 					lbl_money.setText("Money: "+player.getMoney()+"$");
 					btn_bet.setVisible(true);
-					
+					btn_leave.setVisible(true);
 				}else {
 					JOptionPane.showMessageDialog(null,"Invalid Name!","Alerta", JOptionPane.INFORMATION_MESSAGE);					
 				}
@@ -236,6 +246,7 @@ public class BlackJack_App extends JFrame {
 				ValueDealer.setVisible(false);
 				CardsDealer.setVisible(false);
 				btn_bet.setVisible(true);
+				btn_leave.setVisible(true);
 				textField_bet.setVisible(true);
 				lbl_bet_game.setText("Bet: 0$");
 				player.setCards(new String[0]);
@@ -252,6 +263,7 @@ public class BlackJack_App extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(methods.CheckBet(player, textField_bet.getText())) {
 					btn_bet.setVisible(false);
+					btn_leave.setVisible(false);
 					textField_bet.setVisible(false);
 					bet = Integer.parseInt(textField_bet.getText());
 					lbl_bet_game.setText("Bet: "+bet+"$");
@@ -308,6 +320,23 @@ public class BlackJack_App extends JFrame {
 		inicio.add(btn_bet);
 		btn_bet.setVisible(false);
 		
+		btn_leave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(player.getMoney()>=1000) {
+					lbl_end.setText("Congratulations "+player_name+"! \nYou have won "+(player.getMoney()-1000)+"$.");
+				}else {
+					lbl_end.setText("Better luck next time "+player_name+". \nYou have lost "+(1000-player.getMoney())+"$.");					
+				}
+				lbl_bet_game.setVisible(false);
+				textField_bet.setVisible(false);
+				btn_bet.setVisible(false);
+				btn_leave.setVisible(false);
+				lbl_end.setVisible(true);
+			}
+		});
+		btn_leave.setBounds(546, 27, 121, 23);
+		inicio.add(btn_leave);
+		btn_leave.setVisible(false);
 		
 		JLabel lbl_fondo = new JLabel("");
 		lbl_fondo.setIcon(new ImageIcon("src\\resources\\crupier.jpg"));
@@ -324,14 +353,6 @@ public class BlackJack_App extends JFrame {
 		Image img_fondo = img.getScaledInstance(lbl_fondo.getWidth(), lbl_fondo.getHeight(), Image.SCALE_SMOOTH);
 		ImageIcon imageIcon = new ImageIcon(img_fondo);
 		lbl_fondo.setIcon(imageIcon);
-						
-		JPanel fin = new JPanel();
-		fin.setLayout(null);
-		contentPane.add(fin, "name_176721581162400");
 		
-		JLabel fin_txt = new JLabel("FIN DEL JUEGO");
-		fin_txt.setFont(new Font("Tahoma", Font.PLAIN, 27));
-		fin_txt.setBounds(254, 170, 231, 54);
-		fin.add(fin_txt);
 	}
 }
